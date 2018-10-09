@@ -15,11 +15,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.post('/user/authenticate', function (req, res) {
-   res.send('Hello World');
+    //placeholder until we move user authentication to remote service --CHW
 });
+
 app.post('/article/submit', function (req, res) {
-    console.log(req.body);
-    res.send('Hello World');
+    var articles = require("./data/articles.json");
+    articles.push(req.body);
+    fs.writeFile('data/articles.json', JSON.stringify(articles), (err) => {
+        if (err) throw err;
+      });    
  });
 
 
