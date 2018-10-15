@@ -26,9 +26,14 @@ app.post('/article/submit', function (req, res) {
       });    
  });
 
- app.post('/article/count', function(req, res){ 
+ app.get('/article/count', function(req, res){ 
     var articles = require("./data/articles.json");
-    return articles.length;
+    if (typeof articles === "undefined") {
+        res.sendStatus(500);
+    }
+    else {
+        res.json({count: articles.length});
+    }
  });
 
 
