@@ -26,6 +26,11 @@ app.post('/article/submit', function (req, res) {
       });    
  });
 
+ app.post('/article/count', function(req, res){ 
+    var articles = require("./data/articles.json");
+    return articles.length;
+ });
+
 
 var server = app.listen(8081, "127.0.0.1", function () {
    var host = server.address().address
