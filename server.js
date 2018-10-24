@@ -96,55 +96,58 @@ app.get('/tags/all', (req, res) => {
 });
 
 app.post('/search', (req, res) => {
+    let articles = require("./data/articles.json");
+    let results = [];
+    let searchValuesArr = req.body; 
+    let positiveTermsArr = []; 
+    let negativeTermsArr = [];
 
-    const sortByLength = (searchTermsArr) => {
-        for (var i = 0; i < searchTermsArr.length; i++) {
-            if (i < searchTermsArr.length - 1) {
-                if (searchTermsArr[i + 1])
+    console.log(searchValuesArr);
+
+    const sortTerms = (searchValuesArr) => {
+        for (var i = 0; i < searchValuesArr.length; i++) {
+            if (searchValuesArr[i].charAt(0) === "-") {
+                negativeTermsArr.push(searchValuesArr[i]); 
+            }
+            else {
+                positiveTermsArr.push(searchValuesArr[i]); 
             }
         }
-    };
+    }
+
+    sortTerms(searchValuesArr);
 
     const isNegative = (searchTerm) => {
         return searchTerm.charAt(0) === "-" ? true : false;
     };
-    
-    const sortSearchTerms = (searchTermsArr) => {
-        //sort negative search terms to the top
-        let negativeTermsArr = [];
-        for(var i = 0; i < searchTermsArr.length; i++) {        
-            if (isNegative(searchTermsArr[i])) {
-                negativeTermsArr.push(...searchTermsArr.splice(i, i+1));
-            }
-        }
-        searchTermsArr = sortByLength(searchTermsArr);
-        return [...searchTermsArr, ...negativeTermsArr];
+
+    const addArticle = (article) => {
+        results.push(article);
     };
 
     const removeArticle = (index) => {
-        articles.splice(index, index+1);
+        delete results[i];
     }
 
-    let articles = require("./data/articles.json");
-
-    const searchValuesArr = sortSearchTerms(req.body);
-    let results;
-
-    
+    const removeUndefined = () => {
+        results = results.filter(article => { 
+            return article !== undefined;
+        })
+    }
 
     const testString = (str, searchValue, articleIndex) => {
-        if (isNegative(searchValue) && str.match(searchValue.substr(1))) {
+        if (isNegative(searchValue) && str.toLowerCase().match(searchValue.substr(1).toLowerCase()) !== null) {            
             removeArticle(articleIndex);
         }
 
-        if (!isNegative(searchValue) && str.match(searchValue) === "null") {
-            console.log("article contains no reference to react");
-            removeArticle(articleIndex);
+        if (!isNegative(searchValue) && str.match(searchValue) !== null) {
+            addArticle(articles[articleIndex]);
         }
     };
 
     const testType = (obj, searchValue, articleIndex) => {
         if (typeof obj === "string") {
+
             testString(obj, searchValue, articleIndex);
         }
         else {
@@ -152,19 +155,32 @@ app.post('/search', (req, res) => {
                 testType(prop, searchValue, articleIndex);
             }
         }
-    }
+    };
 
     for (var i = 0; i < articles.length; i++) {   
         for (var key in articles[i]) {
-            for (var j = 0; j < searchValuesArr.length; j++) {
-                testType(articles[i][key], searchValuesArr[j], i);
+            if (articles[i]) {
+                for (var j = 0; j < positiveTermsArr.length; j++) {
+                    testType(articles[i][key], positiveTermsArr[j], i);
+                }
             }
-
         }
-
     }
-    
-    console.log(articles.length);    
+    console.log(`${results.length} results added`);
+
+
+
+    for (var i = 0; i < results.length; i++) {   
+        for (var key in results[i]) {
+            if (results[i]) {
+                for (var j = 0; j < negativeTermsArr.length; j++) {
+                    testType(results[i][key], negativeTermsArr[j], i);
+                }
+            }
+        }
+    }
+    removeUndefined();
+    console.log(`${results.length} results left`);    
 });
 
 app.get('*', (req, res) => {
