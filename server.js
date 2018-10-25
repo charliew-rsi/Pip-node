@@ -102,9 +102,7 @@ app.post('/search', (req, res) => {
     let positiveTermsArr = []; 
     let negativeTermsArr = [];
 
-    console.log(searchValuesArr);
-
-    const sortTerms = (searchValuesArr) => {
+    const seperatePositiveAndNegativeTerms = (searchValuesArr) => {
         for (var i = 0; i < searchValuesArr.length; i++) {
             if (searchValuesArr[i].charAt(0) === "-") {
                 negativeTermsArr.push(searchValuesArr[i]); 
@@ -115,18 +113,46 @@ app.post('/search', (req, res) => {
         }
     }
 
-    sortTerms(searchValuesArr);
+
 
     const isNegative = (searchTerm) => {
         return searchTerm.charAt(0) === "-" ? true : false;
     };
 
-    const addArticle = (article) => {
-        results.push(article);
+    const addArticle = (article, matchCount) => {
+        if (results.length === 0) {
+            results.push({article, matchCount});
+        } 
+
+        else {
+            let isset = false;
+            let iter = 0;                       
+            do {
+                if (matchCount > results[iter].matchCount) {
+                    isset = true;
+                }
+                else if (matchCount === results[iter].matchCount) {
+                    isset = true;
+                }
+                iter++;
+            }
+            while (!isset && iter < results.length);
+            if (!isset) {
+                results.push({article, matchCount});
+            }              
+        }      
+    };
+
+    const finalResult = (arr) => {
+        var finalResults = [];
+        for (var i = 0; i < arr.length; i++) {
+            finalResults.push(arr[i].article);
+        }
+        return finalResults;
     };
 
     const removeArticle = (index) => {
-        delete results[i];
+        delete results[index];
     }
 
     const removeUndefined = () => {
@@ -135,19 +161,27 @@ app.post('/search', (req, res) => {
         })
     }
 
+    const getPattern = (term) => {
+        return new RegExp(`${term}`, 'gi');
+    };
+
     const testString = (str, searchValue, articleIndex) => {
-        if (isNegative(searchValue) && str.toLowerCase().match(searchValue.substr(1).toLowerCase()) !== null) {            
-            removeArticle(articleIndex);
+        if (isNegative(searchValue)) {
+            if (str.match(getPattern(searchValue.substr(1))) !== null) {
+                removeArticle(articleIndex);                
+            }
         }
 
-        if (!isNegative(searchValue) && str.match(searchValue) !== null) {
-            addArticle(articles[articleIndex]);
+        else {
+            const matchArr = str.match(getPattern(searchValue)) || null;
+            if (matchArr !== null) {
+                addArticle(articles[articleIndex], matchArr.length);
+            }
         }
     };
 
     const testType = (obj, searchValue, articleIndex) => {
         if (typeof obj === "string") {
-
             testString(obj, searchValue, articleIndex);
         }
         else {
@@ -157,6 +191,9 @@ app.post('/search', (req, res) => {
         }
     };
 
+    seperatePositiveAndNegativeTerms(searchValuesArr);
+
+    //Go through the articles and add the ones that match the positive terms to the results array
     for (var i = 0; i < articles.length; i++) {   
         for (var key in articles[i]) {
             if (articles[i]) {
@@ -166,21 +203,18 @@ app.post('/search', (req, res) => {
             }
         }
     }
-    console.log(`${results.length} results added`);
-
-
-
+    //Go through the results and remove the ones that match the negative terms
     for (var i = 0; i < results.length; i++) {   
         for (var key in results[i]) {
             if (results[i]) {
                 for (var j = 0; j < negativeTermsArr.length; j++) {
-                    testType(results[i][key], negativeTermsArr[j], i);
+                    testType(results[i].article[key], negativeTermsArr[j], i);
                 }
             }
         }
     }
     removeUndefined();
-    console.log(`${results.length} results left`);    
+    res.json(finalResult(results));
 });
 
 app.get('*', (req, res) => {
