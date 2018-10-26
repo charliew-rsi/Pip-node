@@ -44,18 +44,17 @@ app.get('/article/:id', (req, res) => {
     const articles = require("./data/articles.json");    
     req.params.id;
     let foundMatch = false;
-    let i = 0;
-    do {
-        if (articles[i].slug === req.params.id) {
-            res.json(articles[i]);
-            foundMatch = true;
+    let i = articles.length -1 || 0;
+    if (i < 0) {
+        do {
+            if (articles[i].slug === req.params.id) {
+                res.json(articles[i]);
+                foundMatch = true;
+            }
+            i--;
         }
-        i++;
+        while(!foundMatch && i < -1);
     }
-    while(!foundMatch && i < articles.length);
-    
-    let article;
-
 
 });
 
@@ -91,29 +90,31 @@ app.get('/tags/all', (req, res) => {
             }
         }
         while(hasDuplicates);
+
     }
     res.json({tags: tagArr});
 });
 
 app.post('/search', (req, res) => {
-    let articles = require("./data/articles.json");
+    const articles = require("./data/articles.json");
     let results = [];
-    let searchValuesArr = req.body; 
-    let positiveTermsArr = []; 
-    let negativeTermsArr = [];
+    const searchValues = seperatePositiveAndNegativeSearchValues(req.body);
 
-    const seperatePositiveAndNegativeTerms = (searchValuesArr) => {
+    const seperatePositiveAndNegativeSearchValues = (searchValuesArr) => {
+        let positiveSearchValuesArr = [];
+        let negativeSearchValuesArr = [];
         for (var i = 0; i < searchValuesArr.length; i++) {
             if (searchValuesArr[i].charAt(0) === "-") {
-                negativeTermsArr.push(searchValuesArr[i]); 
+                negativeSearchValuesArr.push(searchValuesArr[i]); 
             }
             else {
-                positiveTermsArr.push(searchValuesArr[i]); 
+                positiveSearchValuesArr.push(searchValuesArr[i]); 
             }
         }
+
+        return { positiveSearchValuesArr, negativeSearchValuesArr};
+
     }
-
-
 
     const isNegative = (searchTerm) => {
         return searchTerm.charAt(0) === "-" ? true : false;
@@ -139,16 +140,20 @@ app.post('/search', (req, res) => {
             while (!isset && iter < results.length);
             if (!isset) {
                 results.push({article, matchCount});
-            }              
+            }    
+            
+            else {
+
+            }
         }      
     };
 
     const finalResult = (arr) => {
-        var finalResults = [];
+
         for (var i = 0; i < arr.length; i++) {
-            finalResults.push(arr[i].article);
+            delete arr[i].matchCount;
         }
-        return finalResults;
+        return arr;
     };
 
     const removeArticle = (index) => {
@@ -191,28 +196,33 @@ app.post('/search', (req, res) => {
         }
     };
 
-    seperatePositiveAndNegativeTerms(searchValuesArr);
+    const getNegativeMatches = () => {
+        //Go through the articles and add the ones that match the positive terms to the results array
+        for (var i = 0; i < articles.length; i++) {   
+            for (var key in articles[i]) {
+                if (articles[i]) {
+                    for (var j = 0; j < searchValues.positiveSearchValuesArr.length; j++) {
+                        testType(articles[i][key], searchValues.positiveSearchValuesArr[j], i);
+                    }
+                }
+            }
+        }
+    };
 
-    //Go through the articles and add the ones that match the positive terms to the results array
-    for (var i = 0; i < articles.length; i++) {   
-        for (var key in articles[i]) {
-            if (articles[i]) {
-                for (var j = 0; j < positiveTermsArr.length; j++) {
-                    testType(articles[i][key], positiveTermsArr[j], i);
+    const getPositiveMatches = () => {
+        for (var i = 0; i < results.length; i++) {   
+            for (var key in results[i]) {
+                if (results[i]) {
+                    for (var j = 0; j < searchValues.negativeSearchValuesArr.length; j++) {
+                        testType(results[i].article[key], searchValues.negativeSearchValuesArr[j], i);
+                    }
                 }
             }
         }
-    }
-    //Go through the results and remove the ones that match the negative terms
-    for (var i = 0; i < results.length; i++) {   
-        for (var key in results[i]) {
-            if (results[i]) {
-                for (var j = 0; j < negativeTermsArr.length; j++) {
-                    testType(results[i].article[key], negativeTermsArr[j], i);
-                }
-            }
-        }
-    }
+    };
+
+    getNegativeMatches();
+    getPositiveMatches();
     removeUndefined();
     res.json(finalResult(results));
 });
