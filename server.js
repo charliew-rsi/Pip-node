@@ -98,7 +98,6 @@ app.get('/tags/all', (req, res) => {
 app.post('/search', (req, res) => {
     const articles = require("./data/articles.json");
     let results = [];
-    const searchValues = seperatePositiveAndNegativeSearchValues(req.body);
 
     const seperatePositiveAndNegativeSearchValues = (searchValuesArr) => {
         let positiveSearchValuesArr = [];
@@ -121,39 +120,38 @@ app.post('/search', (req, res) => {
     };
 
     const addArticle = (article, matchCount) => {
-        if (results.length === 0) {
-            results.push({article, matchCount});
-        } 
-
-        else {
-            let isset = false;
-            let iter = 0;                       
-            do {
-                if (matchCount > results[iter].matchCount) {
-                    isset = true;
-                }
-                else if (matchCount === results[iter].matchCount) {
-                    isset = true;
-                }
-                iter++;
+        let hasMatch = false;
+        for (var i = 0; i < results.length; i++) {
+            if (results[i].article.uuid === article.uuid) {
+                results[i].matchCount += matchCount;
+                delete article;
+                hasMatch = true;
+                break;
             }
-            while (!isset && iter < results.length);
-            if (!isset) {
-                results.push({article, matchCount});
-            }    
-            
+        }
+
+        if(!hasMatch) {
+            if(results.length === 0) {
+                results.push({article, matchCount});                
+            }
+
             else {
-
+                for (var i = 0; i < results.length; i++) {
+                    if (matchCount >= results[i].matchCount) {
+                        results.splice(i, 0, {article, matchCount});
+                        break;
+                    }                                   
+                }
             }
-        }      
+        }
     };
 
     const finalResult = (arr) => {
-
+        let finalArray = [];
         for (var i = 0; i < arr.length; i++) {
-            delete arr[i].matchCount;
+            finalArray.push(arr[i].article);
         }
-        return arr;
+        return finalArray;
     };
 
     const removeArticle = (index) => {
@@ -198,6 +196,18 @@ app.post('/search', (req, res) => {
 
     const getNegativeMatches = () => {
         //Go through the articles and add the ones that match the positive terms to the results array
+        for (var i = 0; i < results.length; i++) {       
+                for (var key in results[i].article) {
+                    if (results[i] && results[i].article[key]) {
+                        for (var j = 0; j < searchValues.negativeSearchValuesArr.length; j++) {
+                            testType(results[i].article[key], searchValues.negativeSearchValuesArr[j], i);
+                        }
+                    }
+                }
+        }
+    };
+
+    const getPositiveMatches = () => {
         for (var i = 0; i < articles.length; i++) {   
             for (var key in articles[i]) {
                 if (articles[i]) {
@@ -209,21 +219,11 @@ app.post('/search', (req, res) => {
         }
     };
 
-    const getPositiveMatches = () => {
-        for (var i = 0; i < results.length; i++) {   
-            for (var key in results[i]) {
-                if (results[i]) {
-                    for (var j = 0; j < searchValues.negativeSearchValuesArr.length; j++) {
-                        testType(results[i].article[key], searchValues.negativeSearchValuesArr[j], i);
-                    }
-                }
-            }
-        }
-    };
-
-    getNegativeMatches();
+    const searchValues = seperatePositiveAndNegativeSearchValues(req.body);
     getPositiveMatches();
+    getNegativeMatches();  
     removeUndefined();
+
     res.json(finalResult(results));
 });
 

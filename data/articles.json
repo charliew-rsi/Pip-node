@@ -124,34 +124,6 @@
 	"uuid": "6527f560-d170-11e8-8027-cd27a86d8660"
 }, {
 	"url": "https://stackoverflow.com/questions/29537299/react-how-do-i-update-state-item1-on-setstate-with-jsfiddle",
-	"slug": "10",
-	"createdAt": "2018-10-17T13:49:31.626Z",
-	"favoritesCount": 0,
-	"author": {
-		"username": "ck-RSI"
-	},
-	"title": "React: How do I update state.item[1] on setState? (with JSFiddle)",
-	"type": "Stack Overflow Post",
-	"summary": "",
-	"tags": ["react", "immutability-helper", "setState"],
-	"snippets": ["this.setState({\n  items: update(this.state.items, {1: {name: {$set: 'updated field name'}}})\n})\n", "this.state.items[1].name = 'updated field name'\nthis.forceUpdate()\n"],
-	"uuid": "fc6945a0-d170-11e8-8027-cd27a86d8660"
-}, {
-	"url": "https://stackoverflow.com/questions/46065371/reactjest-syntaxerror-unexpected-token-import",
-	"slug": "11",
-	"createdAt": "2018-10-17T13:49:31.626Z",
-	"favoritesCount": 0,
-	"author": {
-		"username": "ck-RSI"
-	},
-	"title": "[React]Jest SyntaxError: Unexpected token import",
-	"type": "Stack Overflow Post",
-	"summary": "",
-	"tags": ["react", "jest"],
-	"snippets": ["You need to tell jest to import your files using Babel. It can be done by setting the transform attribute of jest in your package.json :\n\n\"jest\": {\n    \"transform\": {\n      \"^.+\\\\.jsx?$\": \"babel-jest\"\n    }\n}\n"],
-	"uuid": "3f2f3c50-d171-11e8-8027-cd27a86d8660"
-}, {
-	"url": "https://stackoverflow.com/questions/29537299/react-how-do-i-update-state-item1-on-setstate-with-jsfiddle",
 	"slug": "12",
 	"createdAt": "2018-10-17T13:49:31.626Z",
 	"favoritesCount": 0,
@@ -193,20 +165,6 @@
 	"snippets": [],
 	"uuid": "43875890-d181-11e8-98fb-e1bd1b5b14cc"
 }, {
-	"url": "https://blog.redelastic.com/what-is-reactive-programming-bc9fa7f4a7fc",
-	"slug": "15",
-	"createdAt": "2018-10-17T13:49:31.626Z",
-	"favoritesCount": 0,
-	"author": {
-		"username": "ck-RSI"
-	},
-	"title": "What is Reactive Programming?",
-	"type": "Op-Ed",
-	"summary": "This editorial provides a pretty in-depth discussion about what reactive programming means to the modern programmer. The author asserts that the four guiding principles of reactive programming are responsiveness, resilience, scalability, and the message-driven development paradigm.  \nWhile many of the concepts he discusses are obtuse, his philosophies and concrete examples are solid. In our modern age of distributed computing and high-performance websites, the author provides insights into the technologies and concepts that power enterprise-level web service.",
-	"tags": ["patterns", "web development"],
-	"snippets": [],
-	"uuid": "8b0ef600-d181-11e8-98fb-e1bd1b5b14cc"
-}, {
 	"url": "https://stackoverflow.com/questions/23327010/how-to-generate-unique-id-with-node-js",
 	"slug": "16",
 	"createdAt": "2018-10-17T13:49:31.626Z",
@@ -220,20 +178,6 @@
 	"tags": ["NodeJS"],
 	"snippets": ["function generate(count, k) {\n    var _sym = 'abcdefghijklmnopqrstuvwxyz1234567890',\n    var str = '';\n\n    for(var i = 0; i < count; i++) {\n        str += _sym[parseInt(Math.random() * (_sym.length))];\n    }\n    base.getID(str, function(err, res) {\n        if(!res.length) {\n          k(str)                   // use the continuation\n        } else generate(count, k)  // otherwise, recurse on generate\n    });\n}\n", "const uuidv1 = require('uuid/v1');\nuuidv1(); // -> '6c84fb90-12c4-11e1-840d-7b25c5ee775a' \n\nconst uuidv4 = require('uuid/v4');\nuuidv4(); // -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1' \n", "const crypto = require(\"crypto\");\n\nconst id = crypto.randomBytes(16).toString(\"hex\");\n\nconsole.log(id); // => f9b327e70bbcf42494ccb28b2d98e00e\n"],
 	"uuid": "94a0b080-d183-11e8-98fb-e1bd1b5b14cc"
-}, {
-	"url": "https://stackoverflow.com/questions/23327010/how-to-generate-unique-id-with-node-js",
-	"slug": "17",
-	"createdAt": "2018-10-17T13:49:31.626Z",
-	"favoritesCount": 0,
-	"author": {
-		"username": "ck-RSI"
-	},
-	"title": "How to generate unique ID with node.js",
-	"type": "Stack Overflow Post",
-	"summary": "",
-	"tags": ["NodeJS"],
-	"snippets": ["function generate(count, k) {\n    var _sym = 'abcdefghijklmnopqrstuvwxyz1234567890',\n    var str = '';\n\n    for(var i = 0; i < count; i++) {\n        str += _sym[parseInt(Math.random() * (_sym.length))];\n    }\n    base.getID(str, function(err, res) {\n        if(!res.length) {\n          k(str)                   // use the continuation\n        } else generate(count, k)  // otherwise, recurse on generate\n    });\n}\n", "const uuidv1 = require('uuid/v1');\nuuidv1(); // -> '6c84fb90-12c4-11e1-840d-7b25c5ee775a' \n\nconst uuidv4 = require('uuid/v4');\nuuidv4(); // -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1' \n", "const crypto = require(\"crypto\");\n\nconst id = crypto.randomBytes(16).toString(\"hex\");\n\nconsole.log(id); // => f9b327e70bbcf42494ccb28b2d98e00e\n"],
-	"uuid": "dc284df0-d183-11e8-98fb-e1bd1b5b14cc"
 }, {
 	"url": "https://medium.freecodecamp.org/best-practices-for-a-clean-and-performant-angular-application-288e7b39eb6f",
 	"slug": "18",
@@ -262,20 +206,6 @@
 		"username": "ck-RSI"
 	},
 	"uuid": "1a9d10a0-d2fd-11e8-a43a-fd5836276f93"
-}, {
-	"url": "https://stackoverflow.com/questions/4649356/how-do-i-run-git-log-to-see-changes-only-for-a-specific-branch#4649377",
-	"title": "How do I run git log to see changes only for a specific branch?",
-	"type": "Stack Overflow Post",
-	"summary": "",
-	"tags": ["git"],
-	"snippets": ["git cherry -v master\n", "git log master..\n", "git log master..branchname\n"],
-	"favoritesCount": 0,
-	"slug": "How-do I run git log to see changes only for a specific branch?6224d520-d2fd-11e8-a43a-fd5836276f93}",
-	"createdAt": "2018-10-18T17:41:54.900Z",
-	"author": {
-		"username": "ck-RSI"
-	},
-	"uuid": "6224d520-d2fd-11e8-a43a-fd5836276f93"
 }, {
 	"url": "https://www.tutorialrepublic.com/twitter-bootstrap-tutorial/bootstrap-lists.php",
 	"title": "Creating Lists With Bootstrap",
