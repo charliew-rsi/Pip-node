@@ -1,3 +1,5 @@
+"use strict";
+
 var express = require('express');
 var bodyParser = require("body-parser");
 var uuidv1 = require("uuid/v1");
@@ -44,18 +46,15 @@ app.get('/article/:id', (req, res) => {
     const articles = require("./data/articles.json");    
     req.params.id;
     let foundMatch = false;
-    let i = articles.length -1 || 0;
-    if (i < 0) {
-        do {
-            if (articles[i].slug === req.params.id) {
-                res.json(articles[i]);
-                foundMatch = true;
-            }
-            i--;
+    let i = 0;
+    do {
+        if (articles[i].slug === req.params.id) {
+            res.json(articles[i]);
+            foundMatch = true;
         }
-        while(!foundMatch && i < -1);
+        i++;
     }
-
+    while(!foundMatch && i < articles.length);
 });
 
 app.get('/articles/:pageNumber', (req, res) => { 
@@ -124,7 +123,6 @@ app.post('/search', (req, res) => {
         for (var i = 0; i < results.length; i++) {
             if (results[i].article.uuid === article.uuid) {
                 results[i].matchCount += matchCount;
-                delete article;
                 hasMatch = true;
                 break;
             }
@@ -156,19 +154,22 @@ app.post('/search', (req, res) => {
 
     const removeArticle = (index) => {
         delete results[index];
-    }
+    };
 
     const removeUndefined = () => {
         results = results.filter(article => { 
             return article !== undefined;
         })
-    }
+    };
 
     const getPattern = (term) => {
         return new RegExp(`${term}`, 'gi');
     };
 
     const testString = (str, searchValue, articleIndex) => {
+        if (str === "username") {
+            console.log(str);
+        }
         if (isNegative(searchValue)) {
             if (str.match(getPattern(searchValue.substr(1))) !== null) {
                 removeArticle(articleIndex);                
@@ -187,9 +188,12 @@ app.post('/search', (req, res) => {
         if (typeof obj === "string") {
             testString(obj, searchValue, articleIndex);
         }
+        else if (typeof obj === "array") {  
+            testString(...obj.toString(), searchValue, articleIndex);
+        }
         else {
-            for (var prop in obj) {
-                testType(prop, searchValue, articleIndex);
+            for (var key in obj) {
+                testType(obj[key], searchValue, articleIndex);
             }
         }
     };
