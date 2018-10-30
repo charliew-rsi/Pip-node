@@ -224,7 +224,6 @@ app.post('/search', (req, res) => {
         }
 
         term = term.join('');
-        console.log("done");
         return new RegExp(`${term}`, 'gi');
     };
 
