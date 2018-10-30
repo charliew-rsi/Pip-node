@@ -26,7 +26,7 @@ app.post('/article/submit', (req, res) => {
     var articles = require("./data/articles.json");
     req.body["uuid"] = uuidv1();
     req.body["slug"] = `${req.body["slug"]}${req.body["uuid"]}}`;
-    articles.push(req.body);    
+    articles.push(req.body);
     fs.writeFile('data/articles.json', JSON.stringify(articles), (err) => {
         if (err) throw err;
       });    
@@ -92,6 +92,25 @@ app.get('/tags/all', (req, res) => {
 
     }
     res.json({tags: tagArr});
+});
+
+app.post('/search/tags', (req, res) => {
+    /*
+    const articles = require("./data/articles.json");
+    const filters = req.body;
+    let results = [];
+    for (var article of articles) {
+        for (var tag of article.tags) {
+            for (var filter of filters) {
+                if (tag === filter) {
+                    return results.push(article);
+                }
+            }
+        }
+    }
+    
+    res.json(results);
+    */
 });
 
 app.post('/search', (req, res) => {
