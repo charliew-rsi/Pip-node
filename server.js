@@ -216,13 +216,19 @@ app.post('/search', (req, res) => {
     };
 
     const getPattern = (term) => {
+        term = term.split('');
+        for (var i = 0; i < term.length; i++) {
+            if (term[i] === "+" && term[i-1] !== "\\") {
+                term = term.splice(i, 0, '\\');
+            }
+        }
+
+        term = term.join('');
+        console.log("done");
         return new RegExp(`${term}`, 'gi');
     };
 
     const testString = (str, searchValue, articleIndex) => {
-        if (str === "username") {
-            console.log(str);
-        }
         if (isNegative(searchValue)) {
             if (str.match(getPattern(searchValue.substr(1))) !== null) {
                 removeArticle(articleIndex);                
