@@ -77,11 +77,7 @@ app.get('/article/:id', (req, res) => {
 app.get('/articles/:pageNumber', (req, res) => { 
     console.log("received request");
     const articles = require("./data/articles.json");        
-    const index = req.params.pageNumber -1;
-
-    const threshold = index + 10 < articles.length ? index + 10 : articles.length;
-    const selectedArticles = articles.slice(index, threshold);
-    res.json({articles: selectedArticles});
+    res.json({articles});
     console.log("sent response");
 });
 
