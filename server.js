@@ -82,9 +82,9 @@ app.get('/articles/:pageNumber', (req, res) => {
 });
 
 app.post('/user/create', (req, res) => {
+    console.log("received request");
     let users = require('./data/users.json');
     const newUser = req.body;
-    console.log(newUser);
     const isDuplicateUser = () => {
         for (let user of users) {
             if (user.email === newUser.email) {
@@ -95,15 +95,25 @@ app.post('/user/create', (req, res) => {
     }
 
     if (!isDuplicateUser()) {
-        console.log(users);
         users.push(newUser);
+        fs.writeFile('data/users.json', JSON.stringify(users), (err) => {
+            if (err) {
+                console.log("send fail");
+                res.json(false);
+                throw err;
+            }
+            else {
+                console.log("send success");
+                res.json(true);
+            }
+        });
+
     }
-    console.log(users);
-    fs.writeFile('data/users.json', JSON.stringify(users), (err) => {
-        if (err) throw err;
-      });
 
-
+    else {
+        console.log("send fail");
+        res.json(false);
+    }
     
 });
 
