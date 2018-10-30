@@ -24,13 +24,30 @@ app.post('/user/authenticate', function (req, res) {
 
 app.post('/article/submit', (req, res) => {
     var articles = require("./data/articles.json");
-    req.body["uuid"] = uuidv1();
-    req.body["slug"] = `${req.body["slug"]}${req.body["uuid"]}}`;
-    articles.push(req.body);
+    req.body.uuid = uuidv1();
+    req.body.slug = `${req.body.slug}-${req.body.uuid}}`;
+    req.body.views = 0;
+    articles.push(req.body);    
     fs.writeFile('data/articles.json', JSON.stringify(articles), (err) => {
         if (err) throw err;
       });    
  });
+
+app.post('/article/addView', (req, res) => {
+    console.log("requested to add a view");
+    var articles = require("./data/articles.json");
+    var slug = req.body.slug;
+    console.log(slug);
+    for (var article of articles) {
+        if (slug === article.slug) {
+            console.log("matched article");
+            article.views++;
+        }
+    }
+    fs.writeFile('data/articles.json', JSON.stringify(articles), (err) => {
+        if (err) throw err;
+      });        
+}); 
 
 app.get('/article/count', (req, res) => { 
     const articles = require("./data/articles.json");
@@ -58,15 +75,51 @@ app.get('/article/:id', (req, res) => {
 });
 
 app.get('/articles/:pageNumber', (req, res) => { 
+    console.log("received request");
     const articles = require("./data/articles.json");        
     const index = req.params.pageNumber -1;
+
     const threshold = index + 10 < articles.length ? index + 10 : articles.length;
     const selectedArticles = articles.slice(index, threshold);
     res.json({articles: selectedArticles});
+    console.log("sent response");
 });
 
 app.post('/user/create', (req, res) => {
-      
+    let users = require('./data/users.json');
+    const newUser = req.body;
+    console.log(newUser);
+    const isDuplicateUser = () => {
+        for (let user of users) {
+            if (user.email === newUser.email) {
+                return true;
+            } 
+        }
+        return false;
+    }
+
+    if (!isDuplicateUser()) {
+        console.log(users);
+        users.push(newUser);
+    }
+    console.log(users);
+    fs.writeFile('data/users.json', JSON.stringify(users), (err) => {
+        if (err) throw err;
+      });
+
+
+    
+});
+
+app.post('/user/authenticate', (req, res) => {
+    let users = require('./data/users.json');
+    const { email, password } = req.body;
+    for (let user of users) {
+        if (user.email.match(email) && user.password.match(password)) {
+          res.json(user);
+        }
+      }
+    res.json({error: true});      
 });
 
 
@@ -92,25 +145,6 @@ app.get('/tags/all', (req, res) => {
 
     }
     res.json({tags: tagArr});
-});
-
-app.post('/search/tags', (req, res) => {
-    /*
-    const articles = require("./data/articles.json");
-    const filters = req.body;
-    let results = [];
-    for (var article of articles) {
-        for (var tag of article.tags) {
-            for (var filter of filters) {
-                if (tag === filter) {
-                    return results.push(article);
-                }
-            }
-        }
-    }
-    
-    res.json(results);
-    */
 });
 
 app.post('/search', (req, res) => {
